@@ -4,7 +4,7 @@ import random
 
 # Configuración
 API_URL = "http://127.0.0.1:8000/readings/"
-SENSOR_ID = 1  # Asegúrate de que este ID exista en tu tabla 'sensor'
+SENSOR_ID = 2  # Asegúrate de que este ID exista en tu tabla 'sensor'
 ARDUINO_KEY = "mi_clave_secreta_de_la_mina" # Debe coincidir con tu router
 
 print(f"🚀 Iniciando simulación con seguridad (ID: {SENSOR_ID})...")
@@ -34,9 +34,9 @@ def send_data(valor):
         print(f"🔥 Error de conexión: {e}")
 
 # Simulamos datos
-valor_actual = 46.0
-for i in range(10):
-    valor_actual += random.uniform(0.1, 2.0) # Tendencia al alza
+valor_actual = 42.8
+for i in range(15):
+    valor_actual += random.uniform(0.1, 2.0)
     send_data(valor_actual)
     time.sleep(1)
 

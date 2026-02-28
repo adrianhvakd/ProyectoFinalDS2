@@ -1,0 +1,228 @@
+@startuml MiningMonitoringSystem
+
+!theme plain
+skinparam classAttributeIconSize 0
+hide circle
+
+package "Models (Capa de Datos)" {
+    class User {
+        -id: str
+        -username: str
+        -email: str
+        -full_name: str?
+        -role: str
+        -is_active: bool
+        -created_at: datetime
+    }
+    
+    class Sensor {
+        -id: int?
+        -name: str
+        -type: str
+        -location: str
+        -description: str?
+        -min_threshold: float
+        -max_threshold: float
+        -is_active: bool
+    }
+    
+    class Reading {
+        -id: int?
+        -value: float
+        -timestamp: datetime
+        -sensor_id: int
+    }
+    
+    class Alert {
+        -id: int?
+        -description: str
+        -severity: str
+        -timestamp: datetime
+        -is_resolved: bool
+        -reading_id: int
+    }
+}
+
+package "Schemas (Capa de Validación)" {
+    class UserBase {
+        +username: str
+        +email: EmailStr
+        +full_name: str?
+        +role: str
+    }
+    
+    class UserCreate {
+        +id: str
+    }
+    
+    class UserRead {
+        +id: str
+        +is_active: bool
+        +created_at: datetime
+    }
+    
+    class SensorCreate {
+        +name: str
+        +type: str
+        +location: str
+        +min_threshold: float
+        +max_threshold: float
+    }
+    
+    class SensorRead {
+        +id: int
+        +is_active: bool
+    }
+    
+    class DashboardSummary {
+        +gases_criticos: float?
+        +temperatura_promedio: float?
+        +sensores_activos: int
+        +sensores_totales: int
+        +alertas_pendientes: int
+    }
+    
+    class ReadingCreate {
+        +sensor_id: int
+        +value: float
+    }
+    
+    class ReadingRead {
+        +id: int
+        +timestamp: datetime
+    }
+    
+    class AlertCreate {
+        +description: str
+        +severity: str
+        +reading_id: int
+    }
+    
+    class AlertRead {
+        +id: int
+        +timestamp: datetime
+        +is_resolved: bool
+        +reading: ReadingRead?
+    }
+}
+
+package "Services (Capa de Negocio)" {
+    class AuthService {
+        +get_user_profile()
+        +update_user_profile()
+        +set_user_status()
+    }
+    
+    class SensorService {
+        +create_sensor()
+        +get_all_sensors()
+        +get_sensor_by_id()
+        +get_dashboard_summary()
+    }
+    
+    class ReadingService {
+        +process_reading()
+        +get_latest_readings()
+        +get_trend_by_type()
+    }
+    
+    class AlertService {
+        +create_automatic_alert()
+        +create_ai_prediction_alert()
+        +get_unresolved_alerts()
+    }
+    
+    class AIService {
+        +predict_sensor_failure()
+    }
+}
+
+package "Routers (Capa de Presentación)" {
+    class AuthRouter {
+        +GET /users/{user_id}
+        +PATCH /users/{user_id}
+    }
+    
+    class SensorRouter {
+        +GET /sensors/dashboard-summary
+        +POST /sensors/
+        +GET /sensors/
+        +GET /sensors/{sensor_id}
+    }
+    
+    class ReadingRouter {
+        +POST /readings/
+        +GET /readings/latest
+        +GET /readings/trend/{sensor_type}
+    }
+    
+    class AlertRouter {
+        +GET /alerts/unresolved
+    }
+}
+
+package "Core (Configuración)" {
+    class Config {
+        +DB_USER: str
+        +DB_PASSWORD: str
+        +DB_HOST: str
+        +DB_PORT: str
+        +DB_NAME: str
+        +SUPABASE_ANON_KEY: str
+        +SUPABASE_URL: str
+        +DATABASE_URL: str
+    }
+    
+    class Security {
+        +verify_token()
+    }
+    
+    class DatabaseConnection {
+        +engine
+        +get_session()
+    }
+}
+
+package "Main (Aplicación)" {
+    class FastAPIApp {
+        +title: str
+        +version: str
+        +include_router()
+    }
+}
+
+User <|-- UserBase
+UserBase <|-- UserCreate
+UserBase <|-- UserRead
+UserCreate --|> User
+
+Sensor <|-- SensorCreate
+SensorCreate <|-- SensorRead
+
+Reading <|-- ReadingCreate
+ReadingCreate <|-- ReadingRead
+
+Alert <|-- AlertCreate
+AlertCreate <|-- AlertRead
+
+Sensor "1" --> "*" Reading : has
+Reading "1" --> "0..1" Alert : generates
+
+AuthService ..> User
+SensorService ..> Sensor
+ReadingService ..> Reading
+AlertService ..> Alert
+AIService ..> Reading
+
+AuthRouter ..> AuthService
+SensorRouter ..> SensorService
+ReadingRouter ..> ReadingService
+AlertRouter ..> AlertService
+
+ReadingService --> AlertService : calls
+ReadingService --> AIService : calls
+
+DatabaseConnection --> Config
+Security --> Config
+
+@enduml

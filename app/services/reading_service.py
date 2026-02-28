@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
 from app.models.reading import Reading
 from app.models.sensor import Sensor
 from app.schemas.reading_schema import ReadingCreate
@@ -54,3 +54,9 @@ def process_reading(db: Session, reading_data: ReadingCreate):
 def get_latest_readings(db: Session, limit: int = 10):
     statement = select(Reading).order_by(Reading.timestamp.desc()).limit(limit)
     return db.exec(statement).all()
+
+def get_trend_by_type(db: Session, sensor_type: str, hours: int = 24):
+    query = text("SELECT hora, promedio FROM get_sensor_type_trend(:stype, :hours)")
+    result = db.execute(query, {"stype": sensor_type, "hours": hours}).fetchall()
+
+    return [{"hora": r.hora, "valor": r.promedio} for r in result]

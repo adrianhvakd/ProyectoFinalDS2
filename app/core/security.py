@@ -1,25 +1,22 @@
-from fastapi import HTTPException, Security
+from fastapi import HTTPException, Security, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-import jwt
-from app.core.config import SUPABASE_JWT_SECRET
+from supabase import create_client, Client
+from app.core.config import SUPABASE_URL, SUPABASE_ANON_KEY
 
 security = HTTPBearer()
 
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
-
-    if not SUPABASE_JWT_SECRET:
-        raise HTTPException(status_code=500, detail="JWT Secret no configurado en el servidor")
-
+    
     try:
-        payload = jwt.decode(
-            token, 
-            SUPABASE_JWT_SECRET, 
-            algorithms=["HS256"], 
-            options={"verify_aud": False}
-        )
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="El token ha expirado")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Token inválido")
+        user = supabase.auth.get_user(token)
+        
+        if not user:
+            raise HTTPException(status_code=401, detail="Usuario no encontrado o token inválido")
+            
+        return user.user
+    except Exception as e:
+        print(f"Error con SDK de Supabase: {str(e)}")
+        raise HTTPException(status_code=401, detail="No autorizado")

@@ -2,11 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from typing import List
 from app.database.connection import get_session
-from app.schemas.sensor_schema import SensorCreate, SensorRead
+from app.schemas.sensor_schema import SensorCreate, SensorRead, DashboardSummary
 from app.services import sensor_service
 from app.core.security import verify_token
 
 router = APIRouter(prefix="/sensors", tags=["Sensors"], dependencies=[Depends(verify_token)])
+
+@router.get("/dashboard-summary", response_model=DashboardSummary)
+async def get_dashboard_summary(db: Session = Depends(get_session)):
+    return sensor_service.get_dashboard_summary(db)
 
 @router.post("/", response_model=SensorRead)
 def create_sensor(sensor: SensorCreate, db: Session = Depends(get_session)):

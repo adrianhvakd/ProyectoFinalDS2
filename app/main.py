@@ -4,12 +4,21 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware 
 from app.routers import sensor_router, reading_router, alert_router, auth_router
 
 app = FastAPI(
     title="Sistema de Monitoreo Minero API",
     description="API para gestión de sensores, lecturas y alertas con IA",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(sensor_router.router)

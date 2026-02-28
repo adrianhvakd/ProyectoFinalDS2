@@ -14,3 +14,10 @@ class SensorRead(SensorCreate):
 
     class Config:
         from_attributes = True
+
+class DashboardSummary(BaseModel):
+    gases_criticos: float | None
+    temperatura_promedio: float | None
+    sensores_activos: int
+    sensores_totales: int
+    alertas_pendientes: int
