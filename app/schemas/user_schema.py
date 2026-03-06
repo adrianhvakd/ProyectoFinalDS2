@@ -10,11 +10,13 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     id: str
+    company_id: Optional[int] = None
 
 class UserRead(UserBase):
     id: str
     is_active: bool
     created_at: datetime
+    company_id: Optional[int] = None
 
     class Config:
         from_attributes = True

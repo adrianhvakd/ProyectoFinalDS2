@@ -4,6 +4,8 @@ from datetime import datetime
 import uuid
 
 class User(SQLModel, table=True):
+    __tablename__ = "user"
+    
     id: str = Field(primary_key=True, nullable=False) 
     
     username: str = Field(unique=True, index=True)
@@ -13,3 +15,5 @@ class User(SQLModel, table=True):
     role: str = Field(default="operator")
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    company_id: Optional[int] = Field(default=None, foreign_key="company.id")

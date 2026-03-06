@@ -10,5 +10,6 @@ class Alert(SQLModel, table=True):
     is_resolved: bool = Field(default=False)
     
     reading_id: int = Field(foreign_key="reading.id")
+    company_id: int = Field(foreign_key="company.id")
 
     reading: Optional["Reading"] = Relationship(back_populates="alert")

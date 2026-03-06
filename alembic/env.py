@@ -5,15 +5,21 @@ from alembic import context
 # 1. IMPORTA SQLMODEL Y TU ENGINE
 from sqlmodel import SQLModel
 from app.database.connection import engine
+from app.core.config import DATABASE_URL
 
 # 2. IMPORTA TODOS TUS MODELOS (Crucial para que detecte las tablas)
 from app.models.sensor import Sensor
 from app.models.reading import Reading
 from app.models.alert import Alert
 from app.models.user import User
+from app.models.company import Company
+from app.models.zone import Zone
 
 # Acceso a la configuración del archivo .ini
 config = context.config
+
+# Sobreescribir la URL con la de config.py
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Configuración de logs
 if config.config_file_name is not None:
