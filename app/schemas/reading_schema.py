@@ -6,6 +6,10 @@ class ReadingCreate(BaseModel):
     sensor_id: int
     value: float
 
+class ReadingCreateSimple(BaseModel):
+    """Schema simplificado para Arduino - solo requiere el valor"""
+    value: float
+
 class ReadingRead(ReadingCreate):
     id: int
     timestamp: datetime
